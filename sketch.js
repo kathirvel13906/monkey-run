@@ -12,43 +12,52 @@ var ground;
 var score;
 var survivaltime;
 var box;
+var jungle, jungleImage;
 
 function preload(){
-  //loading animation for monkey, banana, rock
+  //loading animation for monkey, banana, rock, background
   monkey_running =            loadAnimation("sprite_0.png","sprite_1.png","sprite_2.png","sprite_3.png","sprite_4.png","sprite_5.png","sprite_6.png","sprite_7.png","sprite_8.png");
   monkey_collided = loadAnimation("sprite_1.png");
   
   bananaImage = loadImage("banana.png");
   obstacleImage = loadImage("obstacle.png");
+  jungleImage = loadImage("jungle.jpg");
 }
 
 function setup() {
   //creating canvas 
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight);
+  
+  //creating jungle background
+  jungle = createSprite(width,height-310,900,10);
+  jungle.addImage(jungleImage);
+  jungle.scale = 1;
+  jungle.x = jungle.width/2;
+  jungle.velocityX = -5;
   
   //creating monkey
-  monkey = createSprite(80,315,20,20);
+  monkey = createSprite(80,height-80,20,20);
   monkey.addAnimation("monkeyRun", monkey_running);
   monkey.addAnimation("monkeyCollide",monkey_collided);
-  monkey.scale = 0.13;
+  monkey.scale = 0.14;
   //monkey.debug = true;
   
   //creating ground
-  ground = createSprite(400,350,900,10);
+  ground = createSprite(width,height-80,900,10);
   ground.x = ground.width/2;
-  ground.velocityX = -4;
-  
+  ground.velocityX = -5;
+  ground.visible = false;
+    
   //declaring the groups
   foodGroup = createGroup();
   obstacleGroup = createGroup();
   
   //reset icon
-  box = createSprite(200,200,40,40);
+  box = createSprite(width/2,height/2,40,40);
   
   //score and survivaltime
   survivaltime = 0;
   score = 0;
-  
 }
 
 function draw() {
@@ -59,12 +68,16 @@ function draw() {
   monkey.collide(ground);
   
   
+  //displaying the sprites
+  drawSprites();
+  
   if(gameState === 1) {
       box.visible = false;
     
       //making the monkey jump after pressing space
-      if(keyDown("space") && monkey.y >= 280) {
+      if(keyDown("space") && monkey.y >= 280 || touches.length > 0) {
         monkey.velocityY = -12;
+        touches = [];
       }
 
       //giving gravity to game
@@ -74,13 +87,37 @@ function draw() {
       if(ground.x > 0) {
         ground.x = ground.width/2;
       }
+    
+      //making the infinite background
+      if(jungle.x > 0) {
+        jungle.x = jungle.width/2;
+      }
+    
+      switch(score) {
+          case 7: monkey.scale = 0.16;
+          break;
+          
+          case 14: monkey.scale = 0.18;
+          break;
+          
+          case 21: monkey.scale = 0.2;
+          break;
+          
+          case 28: monkey.scale = 0.22;
+          break;
+          
+          case 35: monkey.scale = 0.24;
+          break;
+          
+          default: break;
+      }
 
       stroke("black");
       textSize(20);
       fill("blue");
-      text("SCORE: "+score, 260,30);
+      text("SCORE: "+score,5*width/8, height/8);
       survivaltime = Math.round(frameCount / frameRate());
-      text("SURVIVAL TIME: "+survivaltime,200,60);
+      text("SURVIVAL TIME: "+survivaltime,4*width/7, height/4);
 
       //declaring the function food and function obstacle
       food();
@@ -91,7 +128,12 @@ function draw() {
         foodGroup.destroyEach();
       }
     
-      if(monkey.isTouching(obstacleGroup)) {
+      if(monkey.scale > 0.14 && obstacleGroup.isTouching(monkey)) {
+        monkey.scale = 0.14;
+        obstacleGroup.destroyEach();
+      }
+      else
+      if(monkey.scale === 0.14 && monkey.isTouching(obstacleGroup)) {
         gameState = 0;
       }
   } 
@@ -102,6 +144,7 @@ function draw() {
     //making the monkey and groung stop
     monkey.velocityY = 0;
     ground.velocityX = 0;
+    jungle.velocityX = 0;
     
      //set lifetime of the game objects so that they are never destroyed
      obstacleGroup.setLifetimeEach(-1);
@@ -115,18 +158,14 @@ function draw() {
     
     stroke("blue");
     textSize(20);
-    fill("green");
-    text("GAME OVER",140,80);
-    text("PRESS THE BOX TO RESTART",60,150);
+    fill("red");
+    text("GAME OVER",3*width/8,100);
+    text("PRESS THE BOX TO RESTART",3*width/12, 150);
   }
   
   if(mousePressedOver(box)) {
     reset();
   }
-  
-  //displaying the sprites
-  drawSprites();
-  
 }
 
 function reset() {
@@ -138,29 +177,31 @@ function reset() {
   foodGroup.destroyEach();
   //changing animation of monkey
   monkey.changeAnimation("monkeyRun", monkey_running);
+  monkey.scale = 0.14;
 }
 
 function food() {
-  if(frameCount % 80 === 0) {
-    banana = createSprite(500,Math.round(random(120,200)),20,20);
+  if(frameCount % 120 === 0) {
+    banana = createSprite(width,height,20,20);
+    banana.y = Math.round(random(height-180, height-300));
     banana.addImage(bananaImage);
     banana.scale = 0.1;
     //banana.debug = true;
-    banana.velocityX = -4;
-    banana.lifetime = 150;
+    banana.velocityX = -5;
+    banana.lifetime = 500;
     foodGroup.add(banana);
   }
 }
 
 function obstacles() {
   if(frameCount %160 === 0) {
-    obstacle = createSprite(500,310,20,20);
+    obstacle = createSprite(width,height-120,20,20);
     obstacle.addImage(obstacleImage);
     obstacle.scale = 0.2;
     obstacle.setCollider("circle",0,0,230);
     //obstacle.debug = true;
-    obstacle.velocityX = -6;
-    obstacle.lifetime = 100;
+    obstacle.velocityX = -7;
+    obstacle.lifetime = 500;
     obstacleGroup.add(obstacle);
   }
 }
