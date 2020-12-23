@@ -163,8 +163,9 @@ function draw() {
     text("PRESS THE BOX TO RESTART",3*width/12, 150);
   }
   
-  if(mousePressedOver(box)) {
+  if(mousePressedOver(box) || touches.length > 0) {
     reset();
+    touches = [];
   }
 }
 
