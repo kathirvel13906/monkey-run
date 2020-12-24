@@ -29,9 +29,9 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   
   //creating jungle background
-  jungle = createSprite(width,height-310,900,10);
+  jungle = createSprite(width,height-450,900,10);
   jungle.addImage(jungleImage);
-  jungle.scale = 1;
+  jungle.scale = 1.85;
   jungle.x = jungle.width/2;
   jungle.velocityX = -5;
   
@@ -75,7 +75,7 @@ function draw() {
       box.visible = false;
     
       //making the monkey jump after pressing space
-      if(keyDown("space") && monkey.y >= 280 || touches.length > 0) {
+      if(keyDown("space") && monkey.y >= height-130 || touches.length > 0) {
         monkey.velocityY = -12;
         touches = [];
       }
@@ -89,7 +89,7 @@ function draw() {
       }
     
       //making the infinite background
-      if(jungle.x > 0) {
+      if(jungle.x < 0) {
         jungle.x = jungle.width/2;
       }
     
@@ -186,9 +186,9 @@ function food() {
     banana = createSprite(width,height,20,20);
     banana.y = Math.round(random(height-180, height-300));
     banana.addImage(bananaImage);
-    banana.scale = 0.1;
+    banana.scale = 0.13;
     //banana.debug = true;
-    banana.velocityX = -5;
+    banana.velocityX = -6;
     banana.lifetime = 500;
     foodGroup.add(banana);
   }
@@ -199,9 +199,9 @@ function obstacles() {
     obstacle = createSprite(width,height-120,20,20);
     obstacle.addImage(obstacleImage);
     obstacle.scale = 0.2;
-    obstacle.setCollider("circle",0,0,230);
+    obstacle.setCollider("rectangle",0,0,300,300);
     //obstacle.debug = true;
-    obstacle.velocityX = -7;
+    obstacle.velocityX = -8;
     obstacle.lifetime = 500;
     obstacleGroup.add(obstacle);
   }
